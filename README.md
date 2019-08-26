@@ -12,13 +12,16 @@ Very simple image presenter using PowerShell and WinForms
    * Adjust the path, for example,"C:\Scripts\PSImagePresenter.ps1"
 
 ## Usage
-1. Adjust your secondary monitor (0 is Sreen 1 and 1 is Screen 2)
-```PowerShell
-$SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[1].WorkingArea
-```
-2. Drag and drop image files to the listbox
-3. Remove unwanted files using up/down key and delete key
-4. Clic the listbox to show the selected image, maximized in the secondary monitor
+1. If necessary, adjust your secondary monitor
+   ```PowerShell
+   $SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[1].WorkingArea
+   ```
+   * 'AllScreens[1]' refers to 'Screen 2' in Display Setting
+   * If you are presenting 'Screen 1', change the number to 'AllScreens[0]'
+2. Run the script using the shorcut or from PowerShell
+3. Drag and drop image files to the listbox
+4. Remove unwanted files using up/down key and delete key
+5. Clic the listbox to show the selected image, maximized in the secondary monitor
 
 ## Reference
 * [Microsoft dotnet API](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms)
