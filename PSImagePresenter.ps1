@@ -1,15 +1,15 @@
 ### https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms
 ### https://www.rlvision.com/blog/a-drag-and-drop-gui-made-with-powershell/
 
-Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
 
 $SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[1].WorkingArea
 
 ### Create form ###
 
 $form = New-Object Windows.Forms.Form -Property @{
-    Text = "Powershell Image Presenter"
+    Text = "PowerShell Image Presenter"
     Size = '640,240'
     StartPosition = "CenterScreen"
     MinimumSize = '240,120'
@@ -19,7 +19,14 @@ $form = New-Object Windows.Forms.Form -Property @{
 $label = New-Object Windows.Forms.Label -Property @{
     Location = '5,10'
     AutoSize = $True
-    Text = "Drop image files here:"
+    Text = "Drop image files here and show on:"
+}
+
+$comboBox = New-Object Windows.Forms.ComboBox -Property @{
+    Location = '187,7'
+    AutoSize = $True
+    DropDownStyle = 'DropDown'
+    DataSource = @("Secondary","Primary")
 }
 
 $listBox = New-Object Windows.Forms.ListBox -Property @{
@@ -35,7 +42,7 @@ $statusBar = New-Object Windows.Forms.StatusBar -Property @{
     Text = "Ready"
 }
 
-$form.Controls.AddRange([System.Object[]]@($label,$listBox,$statusBar))
+$form.Controls.AddRange([Windows.Forms.Control[]]@($label,$comboBox,$listBox,$statusBar))
 
 $form2 = New-Object Windows.Forms.Form -Property @{
     StartPosition = 'Manual'
@@ -50,16 +57,33 @@ $pictureBox = New-Object Windows.Forms.PictureBox -Property @{
     SizeMode = 'Zoom'
 }
 
+$form2.Controls.Add($pictureBox)
+
 ### Write event handlers ###
 
-$listBox_Click = {
-    $pictureBox.Image = [Drawing.Image]::Fromfile($listBox.SelectedItem)
-
-    $form2.Controls.Add($pictureBox)
-    $form2.Show()
+$comboBox_SelectedIndexChanged = {
+    If($comboBox.SelectedItem -eq 'Primary')
+	{
+        $SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[0].WorkingArea
+    }
+    Else
+    {
+        $SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[1].WorkingArea
+    }
+    $form2.WindowState = 'Normal'
+    $form2.Location = New-Object Drawing.Point($SecondaryMonitor.X, $SecondaryMonitor.Y)
+    $form2.WindowState = 'Maximized'
+    $pictureBox.Size = New-Object Drawing.Size($SecondaryMonitor.Width, $SecondaryMonitor.Height)
 }
 
-$listBox_DragOver = [Windows.Forms.DragEventHandler]{
+$listBox_Click = {
+    try {
+        $pictureBox.Image = [Drawing.Image]::Fromfile($listBox.SelectedItem)
+        $form2.Show()
+    } catch {}
+}
+
+$listBox_DragEnter = [Windows.Forms.DragEventHandler]{
     If ($_.Data.GetDataPresent([Windows.Forms.DataFormats]::FileDrop))
     {
         $_.Effect = 'Copy'
@@ -90,7 +114,7 @@ $form_FormClosed = {
     try
     {
         $listBox.remove_Click($button_Click)
-        $listBox.remove_DragOver($listBox_DragOver)
+        $listBox.remove_DragEnter($listBox_DragEnter)
         $listBox.remove_DragDrop($listBox_DragDrop)
         $listBox.remove_KeyDown($listBox_KeyDown)
         $form2.Close()
@@ -102,8 +126,9 @@ $form_FormClosed = {
 
 ### Wire up events ###
 
+$comboBox.Add_SelectedIndexChanged($comboBox_SelectedIndexChanged)
 $listBox.Add_Click($listBox_Click)
-$listBox.Add_DragOver($listBox_DragOver)
+$listBox.Add_DragEnter($listBox_DragEnter)
 $listBox.Add_DragDrop($listBox_DragDrop)
 $listBox.Add_KeyDown($listBox_KeyDown)
 $form.Add_FormClosed($form_FormClosed)
