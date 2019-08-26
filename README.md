@@ -18,7 +18,7 @@ Very simple image presenter using PowerShell and WinForms
    ```
    * 'AllScreens[1]' refers to 'Screen 2' in Display Setting
    * If you are presenting 'Screen 1', change the number to 'AllScreens[0]'
-2. Run the script using the shorcut or from PowerShell
+2. Run the script using the shortcut or from PowerShell
 3. Drag and drop image files to the listbox
 4. Remove unwanted files using up/down key and delete key
 5. Clic the listbox to show the selected image, maximized in the secondary monitor
