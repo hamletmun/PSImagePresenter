@@ -15,8 +15,9 @@ Very simple image presenter using PowerShell and WinForms
 1. Run the script using the shortcut or from PowerShell
 2. Drag and drop image files to the listbox
 3. Remove unwanted files using up/down key and delete key
-4. Clic the listbox to show the selected image, maximized in the secondary monitor
+4. Clic the listbox to show the selected image, maximized in the selected screen
 
 ## Reference
 * [Microsoft dotnet API](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms)
+* [NETImagePresenter](https://github.com/hamletmun/NETImagePresenter)
 * [RLV Blog: A drag-and-drop GUI made with PowerShell](https://www.rlvision.com/blog/a-drag-and-drop-gui-made-with-powershell)
