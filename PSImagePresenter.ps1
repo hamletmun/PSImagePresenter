@@ -4,11 +4,9 @@
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
 
-$SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[1].WorkingArea
-
 ### Create form ###
 
-$form = New-Object Windows.Forms.Form -Property @{
+$MainForm = New-Object Windows.Forms.Form -Property @{
     Text = "PowerShell Image Presenter"
     Size = '640,240'
     StartPosition = "CenterScreen"
@@ -24,10 +22,14 @@ $label = New-Object Windows.Forms.Label -Property @{
 
 $comboBox = New-Object Windows.Forms.ComboBox -Property @{
     Location = '187,7'
-    AutoSize = $True
     DropDownStyle = 'DropDown'
-    DataSource = @("Secondary","Primary")
 }
+
+1..[Windows.Forms.Screen]::AllScreens.Length | ForEach-Object {
+    $comboBox.Items.Add("Screen " + $_)
+}
+$comboBox.SelectedIndex = $comboBox.Items.Count - 1
+$SelectedScreen = [Windows.Forms.Screen]::AllScreens[$comboBox.SelectedIndex].WorkingArea
 
 $listBox = New-Object Windows.Forms.ListBox -Property @{
     Location = '5,30'
@@ -42,18 +44,18 @@ $statusBar = New-Object Windows.Forms.StatusBar -Property @{
     Text = "Ready"
 }
 
-$form.Controls.AddRange([Windows.Forms.Control[]]@($label,$comboBox,$listBox,$statusBar))
+$MainForm.Controls.AddRange([Windows.Forms.Control[]]@($label,$comboBox,$listBox,$statusBar))
 
 $form2 = New-Object Windows.Forms.Form -Property @{
     StartPosition = 'Manual'
-    Location = New-Object Drawing.Point($SecondaryMonitor.X, $SecondaryMonitor.Y)
+    Location = New-Object Drawing.Point($SelectedScreen.X, $SelectedScreen.Y)
     WindowState = 'Maximized'
     FormBorderStyle = 'None'
     BackColor = 'Black'
 }
 
 $pictureBox = New-Object Windows.Forms.PictureBox -Property @{
-    Size = New-Object Drawing.Size($SecondaryMonitor.Width, $SecondaryMonitor.Height)
+    Size = New-Object Drawing.Size($SelectedScreen.Width, $SelectedScreen.Height)
     SizeMode = 'Zoom'
 }
 
@@ -62,18 +64,11 @@ $form2.Controls.Add($pictureBox)
 ### Write event handlers ###
 
 $comboBox_SelectedIndexChanged = {
-    If($comboBox.SelectedItem -eq 'Primary')
-	{
-        $SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[0].WorkingArea
-    }
-    Else
-    {
-        $SecondaryMonitor = [Windows.Forms.Screen]::AllScreens[1].WorkingArea
-    }
+    $SelectedScreen = [Windows.Forms.Screen]::AllScreens[$comboBox.SelectedIndex].WorkingArea
     $form2.WindowState = 'Normal'
-    $form2.Location = New-Object Drawing.Point($SecondaryMonitor.X, $SecondaryMonitor.Y)
+    $form2.Location = New-Object Drawing.Point($SelectedScreen.X, $SelectedScreen.Y)
     $form2.WindowState = 'Maximized'
-    $pictureBox.Size = New-Object Drawing.Size($SecondaryMonitor.Width, $SecondaryMonitor.Height)
+    $pictureBox.Size = New-Object Drawing.Size($SelectedScreen.Width, $SelectedScreen.Height)
 }
 
 $listBox_Click = {
@@ -111,17 +106,14 @@ $listBox_KeyDown = {
 }
 
 $form_FormClosed = {
-    try
-    {
+    try {
         $listBox.remove_Click($button_Click)
         $listBox.remove_DragEnter($listBox_DragEnter)
         $listBox.remove_DragDrop($listBox_DragDrop)
         $listBox.remove_KeyDown($listBox_KeyDown)
         $form2.Close()
-        $form.remove_FormClosed($Form_Cleanup_FormClosed)
-    }
-    catch [Exception]
-    { }
+        $MainForm.remove_FormClosed($Form_Cleanup_FormClosed)
+    } catch [Exception] { }
 }
 
 ### Wire up events ###
@@ -131,8 +123,8 @@ $listBox.Add_Click($listBox_Click)
 $listBox.Add_DragEnter($listBox_DragEnter)
 $listBox.Add_DragDrop($listBox_DragDrop)
 $listBox.Add_KeyDown($listBox_KeyDown)
-$form.Add_FormClosed($form_FormClosed)
+$MainForm.Add_FormClosed($form_FormClosed)
 
 #### Show form ###
 
-[void] $form.ShowDialog()
+[void] $MainForm.ShowDialog()
