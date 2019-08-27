@@ -12,7 +12,7 @@ Very simple image presenter using PowerShell and WinForms
    * Adjust the path, for example,"C:\Scripts\PSImagePresenter.ps1"
 
 ## Usage
-1. Run the script using the shortcut or from PowerShell
+1. Run **PSImagePresenter.ps1** using the shortcut or from PowerShell
 2. Drag and drop image files to the listbox
 3. Remove unwanted files using up/down key and delete key
 4. Clic the listbox to show the selected image, maximized in the selected screen
