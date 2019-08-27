@@ -11,7 +11,6 @@ $MainForm = New-Object Windows.Forms.Form -Property @{
     Size = '640,240'
     StartPosition = "CenterScreen"
     MinimumSize = '240,120'
-    MaximizeBox = $False
 }
 
 $label = New-Object Windows.Forms.Label -Property @{
